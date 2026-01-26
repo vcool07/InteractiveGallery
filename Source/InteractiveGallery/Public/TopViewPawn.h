@@ -30,14 +30,14 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TSoftObjectPtr<UInputAction> TopViewZoomAction;
 
-    // ADD THIS: Switch mode action (same as Walk mode)
+    // Switch mode action (same as Walk mode)
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TSoftObjectPtr<UInputAction> SwitchAction;
 
     // Input functions
     void RotateCamera(const FInputActionValue& Value);
     void ZoomCamera(const FInputActionValue& Value);
-    void SwitchModePressed();  // ADD THIS FUNCTION
+    void SwitchModePressed();
 
     UPROPERTY(EditDefaultsOnly, Category = "Camera")
     float RotationSpeed = 100.0f;

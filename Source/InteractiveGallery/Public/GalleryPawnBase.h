@@ -18,9 +18,9 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-    // NOTE: This is named 'SpringArm', NOT 'SpringArmComponent'
+   
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USpringArmComponent* SpringArm;  // <-- CORRECT NAME
+    USpringArmComponent* SpringArm;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UCameraComponent* Camera;

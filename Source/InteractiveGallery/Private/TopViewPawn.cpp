@@ -73,7 +73,7 @@ void ATopViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
             UE_LOG(LogTemp, Error, TEXT("[TopViewPawn] Failed to load Zoom Action!"));
         }
 
-        // ADD THIS: Bind Switch Action
+        // Bind Switch Action
         if (UInputAction* LoadedSwitch = SwitchAction.LoadSynchronous())
         {
             EnhancedInputComponent->BindAction(LoadedSwitch, ETriggerEvent::Started, this, &ATopViewPawn::SwitchModePressed);

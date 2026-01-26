@@ -72,7 +72,7 @@ void APOIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
             UE_LOG(LogTemp, Error, TEXT("[POIPawn] Failed to load Zoom Action!"));
         }
 
-        // ADD THIS: Bind Switch Action
+        // Bind Switch Action
         if (UInputAction* LoadedSwitch = SwitchAction.LoadSynchronous())
         {
             EnhancedInputComponent->BindAction(LoadedSwitch, ETriggerEvent::Started, this, &APOIPawn::SwitchModePressed);

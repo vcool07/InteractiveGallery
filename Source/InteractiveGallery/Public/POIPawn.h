@@ -37,7 +37,7 @@ private:
     // Input functions
     void RotateAroundPOI(const FInputActionValue& Value);
     void ZoomPOI(const FInputActionValue& Value);
-    void SwitchModePressed();  // ADD THIS FUNCTION
+    void SwitchModePressed();
 
     UPROPERTY(EditDefaultsOnly, Category = "Camera")
     float RotationSpeed = 50.0f;

@@ -2,12 +2,16 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GalleryGameModeBase.h"
+#include "POITarget.h"
 
 APOIPawn::APOIPawn()
 {
     SpringArm->TargetArmLength = 300.f;
     SpringArm->bDoCollisionTest = false;
     SpringArm->bUsePawnControlRotation = false;
+
+    MinArmLength = 100.f;
+    MaxArmLength = 500.f;
 
     UE_LOG(LogTemp, Display, TEXT("[POIPawn] Created with Enhanced Input setup"));
 }
@@ -17,6 +21,29 @@ void APOIPawn::BeginPlay()
     Super::BeginPlay();
 
     UE_LOG(LogTemp, Display, TEXT("[POIPawn] %s active - Close-up view ready"), *GetName());
+}
+
+void APOIPawn::FocusOn(APOITarget* Target, bool bAnimate)
+{
+    if (!Target)
+    {
+        return;
+    }
+
+    SetArmLengthLimits(Target->MinViewDistance, Target->MaxViewDistance);
+    SetDesiredArmLength(Target->ViewDistance, !bAnimate);
+
+    const FTransform Pivot(Target->GetActorRotation(), Target->GetActorLocation());
+    if (bAnimate)
+    {
+        StartCameraTransitionToTransform(Pivot, FocusTransitionTime);
+    }
+    else
+    {
+        SetActorTransform(Pivot);
+    }
+
+    UE_LOG(LogTemp, Display, TEXT("[POIPawn] Focusing on %s"), *Target->DisplayName.ToString());
 }
 
 void APOIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -36,6 +63,7 @@ void APOIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
                 if (UInputMappingContext* LoadedContext = POIMappingContext.LoadSynchronous())
                 {
                     Subsystem->AddMappingContext(LoadedContext, 0);
+                    CacheHeldKeys(LoadedContext);
                     UE_LOG(LogTemp, Display, TEXT("[POIPawn] Added POI Input Mapping Context"));
                 }
                 else
@@ -85,27 +113,24 @@ void APOIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void APOIPawn::RotateAroundPOI(const FInputActionValue& Value)
 {
-    float AxisValue = Value.Get<float>();
+    // Don't fight the fly-to animation
+    if (CameraTransition->IsTransitioning())
+    {
+        return;
+    }
 
-    if (FMath::Abs(AxisValue) > 0.01f)
+    const float Delta = GetOrbitDelta(Value, POIRotateAction.Get());
+    if (Delta != 0.f)
     {
         FRotator NewRotation = GetActorRotation();
-        NewRotation.Yaw += AxisValue * RotationSpeed * GetWorld()->GetDeltaSeconds();
+        NewRotation.Yaw += Delta;
         SetActorRotation(NewRotation);
     }
 }
 
 void APOIPawn::ZoomPOI(const FInputActionValue& Value)
 {
-    float AxisValue = Value.Get<float>();
-
-    if (FMath::Abs(AxisValue) > 0.01f)
-    {
-        float CurrentLength = SpringArm->TargetArmLength;
-        float NewLength = CurrentLength - AxisValue * ZoomSpeed * GetWorld()->GetDeltaSeconds();
-        NewLength = FMath::Clamp(NewLength, 100.0f, 500.0f);
-        SpringArm->TargetArmLength = NewLength;
-    }
+    ApplyZoomInput(Value, POIZoomAction.Get());
 }
 
 // Switch Mode function

@@ -38,10 +38,4 @@ private:
     void RotateCamera(const FInputActionValue& Value);
     void ZoomCamera(const FInputActionValue& Value);
     void SwitchModePressed();
-
-    UPROPERTY(EditDefaultsOnly, Category = "Camera")
-    float RotationSpeed = 100.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Camera")
-    float ZoomSpeed = 300.0f;
 };

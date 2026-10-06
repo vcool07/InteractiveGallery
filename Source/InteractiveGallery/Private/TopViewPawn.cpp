@@ -5,10 +5,14 @@
 
 ATopViewPawn::ATopViewPawn()
 {
-    SpringArm->TargetArmLength = 1000.f;
+    SpringArm->TargetArmLength = 1800.f;
     SpringArm->SetRelativeRotation(FRotator(-60.0f, 0.0f, 0.0f));
     SpringArm->bDoCollisionTest = false;
     SpringArm->bUsePawnControlRotation = false;
+
+    MinArmLength = 400.f;
+    MaxArmLength = 3500.f;
+    MouseOrbitSensitivity = 0.4f;
 
     UE_LOG(LogTemp, Display, TEXT("[TopViewPawn] Created with Enhanced Input setup"));
 }
@@ -37,6 +41,7 @@ void ATopViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
                 if (UInputMappingContext* LoadedContext = TopViewMappingContext.LoadSynchronous())
                 {
                     Subsystem->AddMappingContext(LoadedContext, 0);
+                    CacheHeldKeys(LoadedContext);
                     UE_LOG(LogTemp, Display, TEXT("[TopViewPawn] Added TopView Input Mapping Context"));
                 }
                 else
@@ -86,27 +91,18 @@ void ATopViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ATopViewPawn::RotateCamera(const FInputActionValue& Value)
 {
-    float AxisValue = Value.Get<float>();
-
-    if (FMath::Abs(AxisValue) > 0.01f)
+    const float Delta = GetOrbitDelta(Value, TopViewRotateAction.Get());
+    if (Delta != 0.f)
     {
         FRotator NewRotation = SpringArm->GetRelativeRotation();
-        NewRotation.Yaw += AxisValue * RotationSpeed * GetWorld()->GetDeltaSeconds();
+        NewRotation.Yaw += Delta;
         SpringArm->SetRelativeRotation(NewRotation);
     }
 }
 
 void ATopViewPawn::ZoomCamera(const FInputActionValue& Value)
 {
-    float AxisValue = Value.Get<float>();
-
-    if (FMath::Abs(AxisValue) > 0.01f)
-    {
-        float CurrentLength = SpringArm->TargetArmLength;
-        float NewLength = CurrentLength - AxisValue * ZoomSpeed * GetWorld()->GetDeltaSeconds();
-        NewLength = FMath::Clamp(NewLength, 500.0f, 2000.0f);
-        SpringArm->TargetArmLength = NewLength;
-    }
+    ApplyZoomInput(Value, TopViewZoomAction.Get());
 }
 
 // Switch Mode function

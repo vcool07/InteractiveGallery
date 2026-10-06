@@ -7,6 +7,8 @@
 #include "InputAction.h"
 #include "POIPawn.generated.h"
 
+class APOITarget;
+
 UCLASS()
 class INTERACTIVEGALLERY_API APOIPawn : public AGalleryPawnBase
 {
@@ -14,6 +16,10 @@ class INTERACTIVEGALLERY_API APOIPawn : public AGalleryPawnBase
 
 public:
     APOIPawn();
+
+    // Orbit around Target's pivot; bAnimate flies there instead of snapping
+    UFUNCTION(BlueprintCallable, Category = "POI")
+    void FocusOn(APOITarget* Target, bool bAnimate);
 
 protected:
     virtual void BeginPlay() override;
@@ -34,14 +40,11 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TSoftObjectPtr<UInputAction> SwitchAction;
 
+    UPROPERTY(EditDefaultsOnly, Category = "POI", meta = (ClampMin = "0.05"))
+    float FocusTransitionTime = 1.2f;
+
     // Input functions
     void RotateAroundPOI(const FInputActionValue& Value);
     void ZoomPOI(const FInputActionValue& Value);
     void SwitchModePressed();
-
-    UPROPERTY(EditDefaultsOnly, Category = "Camera")
-    float RotationSpeed = 50.0f;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Camera")
-    float ZoomSpeed = 100.0f;
 };

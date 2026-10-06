@@ -104,8 +104,8 @@ void AWalkCharacter::Look(const FInputActionValue& Value)
 
     if (Controller)
     {
-        AddControllerYawInput(LookVector.X);
-        AddControllerPitchInput(LookVector.Y);
+        AddControllerYawInput(LookVector.X * LookSensitivity);
+        AddControllerPitchInput(LookVector.Y * LookSensitivity * (bInvertLookY ? -1.f : 1.f));
     }
 }
 

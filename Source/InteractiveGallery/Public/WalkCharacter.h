@@ -40,6 +40,12 @@ private:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TSoftObjectPtr<UInputAction> SwitchAction;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Input|Look", meta = (ClampMin = "0.01"))
+    float LookSensitivity = 1.0f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input|Look")
+    bool bInvertLookY = false;
+
     // Input functions
     void Move(const FInputActionValue& Value);
     void Look(const FInputActionValue& Value);

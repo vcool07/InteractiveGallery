@@ -17,12 +17,6 @@ void ATopViewPawn::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (APlayerController* PC = Cast<APlayerController>(GetController()))
-    {
-        PC->bShowMouseCursor = true;
-        PC->SetInputMode(FInputModeGameAndUI());
-    }
-
     UE_LOG(LogTemp, Display, TEXT("[TopViewPawn] %s active - Top view ready"), *GetName());
 }
 
@@ -94,11 +88,6 @@ void ATopViewPawn::RotateCamera(const FInputActionValue& Value)
 {
     float AxisValue = Value.Get<float>();
 
-    if (FMath::Abs(AxisValue) > 0.1f)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[TopViewPawn] ROTATE INPUT: %.2f"), AxisValue);
-    }
-
     if (FMath::Abs(AxisValue) > 0.01f)
     {
         FRotator NewRotation = SpringArm->GetRelativeRotation();
@@ -110,11 +99,6 @@ void ATopViewPawn::RotateCamera(const FInputActionValue& Value)
 void ATopViewPawn::ZoomCamera(const FInputActionValue& Value)
 {
     float AxisValue = Value.Get<float>();
-
-    if (FMath::Abs(AxisValue) > 0.1f)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[TopViewPawn] ZOOM INPUT: %.2f"), AxisValue);
-    }
 
     if (FMath::Abs(AxisValue) > 0.01f)
     {
@@ -130,22 +114,9 @@ void ATopViewPawn::SwitchModePressed()
 {
     UE_LOG(LogTemp, Display, TEXT("[TopViewPawn] Switch Mode key pressed"));
 
-    if (UWorld* World = GetWorld())
+    if (AGalleryGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AGalleryGameModeBase>())
     {
-        if (AGalleryGameModeBase* GameMode = Cast<AGalleryGameModeBase>(World->GetAuthGameMode()))
-        {
-            switch (GameMode->CurrentMode)
-            {
-            case EGalleryMode::TopView:
-                GameMode->SwitchMode(EGalleryMode::POI);
-                break;
-            case EGalleryMode::POI:
-                GameMode->SwitchMode(EGalleryMode::Walk);
-                break;
-            case EGalleryMode::Walk:
-                GameMode->SwitchMode(EGalleryMode::TopView);
-                break;
-            }
-        }
+        // Next tick: switching destroys this pawn, which must not happen inside its own input callback
+        GetWorldTimerManager().SetTimerForNextTick(GameMode, &AGalleryGameModeBase::CycleMode);
     }
 }

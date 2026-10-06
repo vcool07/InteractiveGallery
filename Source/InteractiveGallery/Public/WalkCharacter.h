@@ -17,11 +17,12 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+    virtual void PossessedBy(AController* NewController) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
-    class UCameraComponent* FirstPersonCamera;
+    TObjectPtr<class UCameraComponent> FirstPersonCamera;
 
     // Enhanced Input
     UPROPERTY(EditDefaultsOnly, Category = "Input")

@@ -16,23 +16,26 @@ public:
     AGalleryPawnBase();
 
 protected:
-    virtual void BeginPlay() override;
-
-   
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    USpringArmComponent* SpringArm;
+    // Cursor + input mode live here, not in BeginPlay: BeginPlay runs at spawn, before the pawn has a controller
+    virtual void PossessedBy(AController* NewController) override;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    UCameraComponent* Camera;
+    TObjectPtr<USpringArmComponent> SpringArm;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    UCameraTransitionComponent* CameraTransition;
+    TObjectPtr<UCameraComponent> Camera;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UCameraTransitionComponent> CameraTransition;
 
 public:
     UFUNCTION(BlueprintCallable, Category = "Camera")
     void StartCameraTransitionTo(AActor* TargetActor, float Duration = 1.0f);
 
+    UFUNCTION(BlueprintCallable, Category = "Camera")
+    void StartCameraTransitionToTransform(const FTransform& Target, float Duration = 1.0f);
+
 private:
     UPROPERTY()
-    UStaticMeshComponent* InvisibleMesh;
+    TObjectPtr<UStaticMeshComponent> InvisibleMesh;
 };

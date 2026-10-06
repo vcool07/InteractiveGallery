@@ -8,7 +8,7 @@
 
 AWalkCharacter::AWalkCharacter()
 {
-    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
 
     GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -33,6 +33,17 @@ AWalkCharacter::AWalkCharacter()
 void AWalkCharacter::BeginPlay()
 {
     Super::BeginPlay();
+}
+
+void AWalkCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    if (APlayerController* PC = Cast<APlayerController>(NewController))
+    {
+        PC->bShowMouseCursor = false;
+        PC->SetInputMode(FInputModeGameOnly());
+    }
 }
 
 void AWalkCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -80,13 +91,6 @@ void AWalkCharacter::Move(const FInputActionValue& Value)
 {
     FVector2D MovementVector = Value.Get<FVector2D>();
 
-    // DEBUG LOG
-    if (MovementVector.SizeSquared() > 0.01f)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[WalkCharacter] MOVE INPUT: Forward=%.2f, Right=%.2f"),
-            MovementVector.Y, MovementVector.X);
-    }
-
     if (Controller)
     {
         AddMovementInput(GetActorForwardVector(), MovementVector.Y);
@@ -115,22 +119,9 @@ void AWalkCharacter::SwitchModePressed()
 {
     UE_LOG(LogTemp, Display, TEXT("[WalkCharacter] Switch Mode key pressed"));
 
-    if (UWorld* World = GetWorld())
+    if (AGalleryGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AGalleryGameModeBase>())
     {
-        if (AGalleryGameModeBase* GameMode = Cast<AGalleryGameModeBase>(World->GetAuthGameMode()))
-        {
-            switch (GameMode->CurrentMode)
-            {
-            case EGalleryMode::Walk:
-                GameMode->SwitchMode(EGalleryMode::TopView);
-                break;
-            case EGalleryMode::TopView:
-                GameMode->SwitchMode(EGalleryMode::POI);
-                break;
-            case EGalleryMode::POI:
-                GameMode->SwitchMode(EGalleryMode::Walk);
-                break;
-            }
-        }
+        // Next tick: switching destroys this pawn, which must not happen inside its own input callback
+        GetWorldTimerManager().SetTimerForNextTick(GameMode, &AGalleryGameModeBase::CycleMode);
     }
 }

@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "CameraTransitionComponent.generated.h"
 
+// Smoothly moves the owning actor to a target transform (cubic ease-in-out)
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INTERACTIVEGALLERY_API UCameraTransitionComponent : public UActorComponent
 {
@@ -19,6 +20,9 @@ protected:
 public:
     UFUNCTION(BlueprintCallable, Category = "Camera")
     void StartTransitionToActor(AActor* TargetActor, float Duration = 1.0f);
+
+    UFUNCTION(BlueprintCallable, Category = "Camera")
+    void StartTransitionToTransform(const FTransform& Target, float Duration = 1.0f);
 
     UFUNCTION(BlueprintPure, Category = "Camera")
     bool IsTransitioning() const { return bIsTransitioning; }

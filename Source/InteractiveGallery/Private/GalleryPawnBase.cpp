@@ -32,9 +32,17 @@ AGalleryPawnBase::AGalleryPawnBase()
     SetActorEnableCollision(false);
 }
 
-void AGalleryPawnBase::BeginPlay()
+void AGalleryPawnBase::PossessedBy(AController* NewController)
 {
-    Super::BeginPlay();
+    Super::PossessedBy(NewController);
+
+    if (APlayerController* PC = Cast<APlayerController>(NewController))
+    {
+        PC->bShowMouseCursor = true;
+        FInputModeGameAndUI InputMode;
+        InputMode.SetHideCursorDuringCapture(false);
+        PC->SetInputMode(InputMode);
+    }
 }
 
 void AGalleryPawnBase::StartCameraTransitionTo(AActor* TargetActor, float Duration)
@@ -42,5 +50,13 @@ void AGalleryPawnBase::StartCameraTransitionTo(AActor* TargetActor, float Durati
     if (CameraTransition && TargetActor)
     {
         CameraTransition->StartTransitionToActor(TargetActor, Duration);
+    }
+}
+
+void AGalleryPawnBase::StartCameraTransitionToTransform(const FTransform& Target, float Duration)
+{
+    if (CameraTransition)
+    {
+        CameraTransition->StartTransitionToTransform(Target, Duration);
     }
 }
